@@ -389,19 +389,19 @@ impl<Output> Kcp<Output> {
 
     // move available data from rcv_buf -> rcv_queue
     pub fn move_buf(&mut self) {
-        while !self.rcv_buf.is_empty() {
-            let nrcv_que = self.rcv_queue.len();
+        while !self.rcv_buf.is_empty() { //当前的recv buffer有数据
+            let nrcv_que = self.rcv_queue.len(); // 得到接收队列的长度
             {
-                let seg = self.rcv_buf.front().unwrap();
-                if seg.sn == self.rcv_nxt && nrcv_que < self.rcv_wnd as usize {
+                let seg = self.rcv_buf.front().unwrap(); //得到整个接收队列最前面的一个seg
+                if seg.sn == self.rcv_nxt && nrcv_que < self.rcv_wnd as usize { //当前序列号是所需要的，并且接收队列长度小于接窗口
                     self.rcv_nxt += 1;
                 } else {
                     break;
                 }
             }
 
-            let seg = self.rcv_buf.pop_front().unwrap();
-            self.rcv_queue.push_back(seg);
+            let seg = self.rcv_buf.pop_front().unwrap(); //从buffer中移走，
+            self.rcv_queue.push_back(seg); // 放入接收队列中
         }
     }
 
@@ -450,7 +450,7 @@ impl<Output> Kcp<Output> {
         match self.rcv_queue.front() {
             Some(segment) => {
                 if segment.frg == 0 {
-                    return Ok(segment.data.len());
+                    return Ok(segment.data.len()); //如果seg没有frag，就直接返回长度
                 }
 
                 if self.rcv_queue.len() < (segment.frg + 1) as usize {
